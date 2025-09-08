@@ -1,0 +1,229 @@
+// INTERFICIE 0 - TAD_TIMER
+
+void RSI_Timer0(void);
+    // IMPORTANT! Funció que ha der ser cridadda des de la RSI, en en cas que TMR0IF==1.
+    // La RSI ha de contenir: if (TMR0IF==1) RSI_Timer0();
+
+void TI_Init (void);
+	// Post: Constructor. És precondició global haver cridat aquesta funció quan es cridi qualsevol altra funció del TAD
+
+unsigned char TI_NewTimer(unsigned char *TimerHandle) ;
+	// Post: Retorna TI_CERT en cas que s'hagi creat adequadament un nou timer, i TI_FALS en cas contrati.
+    // Posa a *TimerHandle l'identificador de timer assignat, necessari per usar les funcions TI_GetTics i TI_ResetTics.
+
+void TI_ResetTics (unsigned char TimerHandle);
+	// Pre: Handle ha estat retornat per Ti_NewTimer.
+	// Post: Engega la temporització associada a 'TimerHandle', guardant la referencia temporal en el moment de la crida.
+
+unsigned long TI_GetTics (unsigned char TimerHandle);
+	// Pre: Handle ha estat retornat per TI_NewGetTimer.
+	// Post: Retorna els tics transcorreguts des de la crida a TI_ResetTics per al mateix TimerHandle.
+    
+
+// INTERFICIE 1 - TAD_GESTOR
+
+void initGestor(void);
+    // Post: Inicialitza la base de dades d'usuaris amb els UIDs i configuracions de LEDs per defecte.
+
+void gestor_ActualitzaUIDNoRegistrat(unsigned char i);
+    // Pre: 'i' ha de ser un índex vàlid dins del rang de MAX_USERS.
+    // Post: Copia el UID de l'usuari corresponent a la variable UID_actual.
+
+unsigned char gestor_buscaUIDreg(unsigned char i);
+    // Pre: 'i' ha de ser un índex vàlid dins del rang de MAX_USERS.
+    // Post: Retorna 1 si el UID actual coincideix amb el UID de l'usuari indexat. 
+    // Retorna 0 si no hi ha coincidència.
+
+void gestor_actualitzaEstat(void);
+    // Post: Comprova si s'ha detectat un nou UID mitjançant RFID i actualitza l'estat del gestor.
+
+char gestor_getConnected(void);
+    // Post: Retorna 1 si hi ha un usuari connectat a la sala. 
+    // Retorna 0 si no hi ha cap usuari connectat.
+
+void motorGestor(void);
+    // Post: Gestiona el cicle de verificació i connexió d'usuaris. 
+    // Administra l'estat del sistema en funció de la detecció d'un nou UID via RFID.
+    // Post: Interactua amb el teclat i el LCD per mostrar informació.
+
+unsigned char gestor_getIntensity(unsigned char flag, unsigned char led, unsigned char n_user);
+    // Pre: 'led' ha d'estar entre 0 i 5.
+    // 'n_user' ha de ser un índex vàlid dins del rang de MAX_USERS.
+    // Post: Retorna la intensitat del LED corresponent per l'usuari seleccionat.
+    // Post: Si flag == 2 i la intensitat és 'A', retorna ':'.
+    // Si flag == 1, retorna la intensitat del LED de l'usuari seleccionat.
+    // Si flag == 0, retorna la intensitat del LED de l'usuari connectat.
+
+unsigned char gestor_hiHaUserNoAutoritzat(void);
+    // Post: Retorna 1 si hi ha hagut un intent d'accés d'un usuari no autoritzat.
+    // Retorna 0 si no hi ha hagut cap intent d'accés no autoritzat.
+
+unsigned char gestor_hiHaNouUser(void);
+    // Post: Retorna 1 si hi ha un nou usuari connectat.
+    // Retorna 0 si no hi ha nous usuaris connectats.
+
+void gestor_getUIDActual(char *UID_funct, unsigned char flag, unsigned char n_user);
+    // Pre: 'UID_funct' ha de ser un punter a una cadena de 10 caràcters mínim.
+    // 'n_user' ha de ser un índex vàlid dins del rang de MAX_USERS si flag == 1.
+    // Post: Copia el UID de l'usuari seleccionat a 'UID_funct'.
+    // Si flag == 1, copia el UID de 'n_user'.
+    // Si flag == 0, copia el UID actual.
+
+unsigned char gestor_hiHaLogout(void);
+    // Post: Retorna 1 si l'usuari ha fet logout (ha sortit de la sala).
+    // Retorna 0 si l'usuari continua a la sala.
+
+// INTERFICIE 2 - TAD_HORA
+
+void initHora(void);
+    // Post: Inicialitza el sistema de comptatge d'hora creant un temporitzador.
+
+void hora_getHora(unsigned char *hora);
+    // Pre: 'hora' ha de ser un punter a una cadena de 5 caràcters mínim.
+    // Post: Copia l'hora actual en format HH:MM a la variable 'hora'.
+
+void hora_setHora(unsigned char *numeros);
+    // Pre: 'numeros' ha de contenir una hora vàlida en format HH:MM.
+    // Post: Actualitza l'hora del sistema amb la nova hora proporcionada.
+
+void motorHora(void);
+    // Post: Gestiona el comptatge del temps en segons, minuts i hores.
+    // Actualitza l'hora a la pantalla LCD cada segon.
+    // Controla els canvis d'hora introduïts per l'usuari.
+
+// INTERFICIE 3 - TAD_LCD
+
+void LcInit(char rows, char columns);
+    // Pre: rows ha de ser {1, 2, 4}, columns ha de ser {8, 16, 20, 24, 32, 40}.
+    // Es requereix un temps de 40ms de tranquil·litat després d'activar VCC abans de cridar aquesta funció.
+    // Cal que hi hagi un temporitzador lliure.
+    // Post: Inicialitza la pantalla LCD i la deixa neta.
+    // El cursor es posiciona a (0,0) i es desactiva.
+
+void LcGotoXY(char Column, char Row);
+    // Pre: Column entre 0 i 39, Row entre 0 i 3.
+    // Post: Mou el cursor a la posició especificada.
+    // La següent ordre pot trigar fins a 40us.
+
+void LcPutChar(char c);
+    // Post: Escriu el caràcter ‘c’ en la posició actual del cursor i incrementa la posició.
+    // Si la columna arriba al màxim, el cursor torna a 0.
+    // Si el LCD té 2 files, el cursor salta a la següent fila quan es desborda.
+    // Si el LCD té 4 files, es reinicia després de la quarta fila.
+    // El temps d'espera és superior a 40us per garantir la correcta execució.
+
+// INTERFICIE 4 - TAD_LED
+
+void initLed(void);
+    // Post: Inicialitza els LEDs configurant els ports adequats com a sortida.
+    // Inicialitza els temporitzadors necessaris per controlar la intensitat dels LEDs.
+    // Estableix l'estat inicial de tots els LEDs a apagat.
+
+void led_valorTecla(unsigned char tecla, unsigned char valor);
+    // Pre: 'tecla' ha de ser un valor entre 0 i 5 corresponent a un LED.
+    // 'valor' ha de ser 0 (LED apagat) o 1 (LED encès).
+    // Post: Modifica l'estat del LED especificat segons el valor indicat.
+
+void motorLed(unsigned char led);
+    // Pre: 'led' ha de ser un valor entre 0 i 5 corresponent a un LED.
+    // Post: Gestiona la intensitat del LED seleccionat en funció de la configuració de l'usuari.
+    // Controla l'encesa i apagada del LED segons els valors de 'gestor_getIntensity()'.
+    // Si no hi ha cap usuari connectat, apaga el LED automàticament.
+
+// INTERFICIE 5 - TAD_MENU
+
+void initMenu(void);
+    // Post: Inicialitza el menú del sistema.
+
+char menu_enviaCharMenu(unsigned char n_trama);
+    // Pre: 'n_trama' ha de ser un índex vàlid dins de les trames predefinides.
+    // Post: Envia un caràcter corresponent a la trama especificada via EUSART.
+    // Retorna 1 si l'enviament ha estat correcte, 0 en cas contrari.
+
+char menu_rebCharMenu(void);
+    // Post: Si hi ha un caràcter rebut per EUSART, el guarda i el retransmet.
+    // Retorna 1 si s'ha rebut correctament, 0 en cas contrari.
+
+char menu_sendInfoCompleta(unsigned char maxArray, unsigned char n_array);
+    // Pre: 'maxArray' és la mida màxima de la cadena a enviar.
+    // 'n_array' és l'índex del missatge a enviar.
+    // Post: Envia una línia de text completa via EUSART.
+    // Retorna 1 si ha completat l'enviament, 0 si encara hi ha més caràcters per enviar.
+
+void menu_ActualitzaEstat(void);
+    // Post: Actualitza l'estat del menú segons la informació rebuda via EUSART o altres interaccions.
+    // Detecta nous usuaris connectats i actualitza la informació pertinent.
+
+void motorMenu(void);
+    // Post: Gestiona la interacció amb l'usuari mitjançant el menú EUSART.
+    // Processa les opcions introduïdes i actua en conseqüència.
+    // Mostra informació com l'UID dels usuaris, configuració de LEDs i l'hora.
+
+// INTERFICIE 6 - TAD_RFID
+
+void initRFID(void);
+    // Post: Inicialitza el lector RFID configurant els ports de comunicació.
+    // Configura i inicialitza el mòdul MFRC522.
+    // Inicialitza el temporitzador per gestionar les lectures periòdiques.
+
+void ReadRFID_Cooperatiu(void);
+    // Post: Gestiona la lectura de targetes RFID de manera cooperativa.
+    // Si es detecta un nou UID, el converteix a format ASCII i l'emmagatzema.
+
+unsigned char rfid_hiHaNouUID(void);
+    // Post: Retorna 1 si s'ha detectat una nova targeta RFID.
+    // Retorna 0 si no s'ha detectat cap nova targeta.
+
+void rfid_getUID(char *UID_FUNC);
+    // Pre: 'UID_FUNC' ha de ser un punter a una cadena de 10 caràcters mínim.
+    // Post: Copia l'UID detectat en format ASCII a 'UID_FUNC'.
+
+// INTERFICIE 7 - TAD_TECLAT
+
+void initTeclat(void);
+    // Post: Inicialitza el teclat matricial configurant les entrades i sortides.
+    // Inicialitza el temporitzador per gestionar les pulsacions.
+
+void teclat_rotaFiles(void);
+    // Post: Canvia la fila activada del teclat matricial per escanejar les tecles premudes.
+
+char teclat_guardaTeclaTeclat(void);
+    // Post: Retorna el caràcter corresponent a la tecla premuda.
+
+char teclat_teclaPremuda(void);
+    // Post: Retorna 1 si s'ha detectat una tecla premuda, 0 en cas contrari.
+
+char teclat_getTempsDeHash(void);
+    // Post: Retorna el temps de pulsació de la tecla '#' en segons.
+
+char teclat_hiHaTecla(void);
+    // Post: Retorna 1 si hi ha una tecla premuda, 0 en cas contrari.
+
+char teclat_getTeclaPremuda(void);
+    // Post: Retorna el caràcter de la tecla premuda actual.
+
+void motorTeclat(void);
+    // Post: Gestiona l'estat del teclat i detecta les pulsacions.
+    // Implementa control de rebots per evitar falses deteccions.
+
+// INTERFICIE 8 - EUSARTTX
+
+void EusartTX_Init(void);
+    // Post: Inicialitza la comunicació EUSART a 9600 bps en mode asíncron.
+    // Post: Configura els registres EUSART i habilita la transmissió i recepció.
+
+char eusartTx_pucEnviar(void);
+    // Pre: La EUSART ha d'estar inicialitzada mitjançant EusartTX_Init().
+    // Post: Retorna 1 si el registre de transmissió està buit i es pot enviar un nou caràcter. Retorna 0 si el registre de transmissió encara està ocupat.
+
+void eusartTx_sendChar(char c);
+    // Pre: La EUSART ha d'estar inicialitzada mitjançant EusartTX_Init(). eusartTx_pucEnviar() ha de retornar 1 abans de cridar aquesta funció.
+    // Post: El caràcter ‘c’ s’envia a través de la EUSART.
+
+char eusartRX_heRebut(void);
+    // Pre: La EUSART ha d'estar inicialitzada mitjançant EusartTX_Init().
+    // Post: Retorna 1 si hi ha un nou caràcter disponible al buffer de recepció. Retorna 0 si no hi ha cap caràcter disponible.
+
+char eusartRX_rebreChar(void);
+    // Pre: La EUSART ha d'estar inicialitzada mitjançant EusartTX_Init(). eusartRX_heRebut() ha de retornar 1 abans de cridar aquesta funció.
+    // Post: Retorna el caràcter rebut per la EUSART.
